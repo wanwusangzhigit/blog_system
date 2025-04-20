@@ -21,16 +21,29 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .path-container {
+        .input-container {
             display: flex;
             margin-bottom: 20px;
+            gap: 10px;
+            align-items: center;
         }
-        #path-input {
+        .input-group {
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .input-label {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"] {
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 16px;
+            width: 100%;
         }
         #submit-btn {
             padding: 10px 20px;
@@ -40,7 +53,8 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin-left: 10px;
+            height: 40px;
+            align-self: flex-end;
         }
         #submit-btn:hover {
             background-color: #45a049;
@@ -52,11 +66,18 @@
 </head>
 <body>
     <div class="container">
-        <div class="path-container">
-            <input type="text" id="path-input" value="qt\p1001" placeholder="输入路径...">
+        <div class="input-container">
+            <div class="input-group">
+                <label for="path-input" class="input-label">路径</label>
+                <input type="text" id="path-input" value="qt\p1001" placeholder="输入路径...">
+            </div>
+            <div class="input-group">
+                <label for="github-token" class="input-label">GitHub Token</label>
+                <input type="password" id="github-token" placeholder="输入GitHub Token...">
+            </div>
             <button id="submit-btn">提交</button>
         </div>
-      
+        
         <div id="editor-md">
             <textarea style="display:none;"># 欢迎使用 Markdown 编辑器
 
@@ -73,7 +94,7 @@ console.log("Hello, Markdown!");
     </div>
 
     <!-- jQuery -->
-    <script src="./jquery.js"></script>
+    <script src="./jquery.js">
     <!-- Editor.md -->
     <script src="https://md1.wanwusangzhi.top/editor.md/editormd.min.js"></script>
     
@@ -97,9 +118,11 @@ console.log("Hello, Markdown!");
             // 提交按钮点击事件
             $("#submit-btn").click(function() {
                 var path = $("#path-input").val();
+                var githubToken = $("#github-token").val();
                 var markdownContent = editor.getMarkdown();
                 
                 console.log("路径:", path);
+                console.log("GitHub Token:", githubToken);
                 console.log("Markdown 内容:");
                 console.log(markdownContent);
                 
