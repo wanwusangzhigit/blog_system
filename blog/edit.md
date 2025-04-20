@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 编辑器</title>
+    <!-- Editor.md 的 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/editor.md@1.5.0/css/editormd.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .path-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #path-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        #submit-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        #submit-btn:hover {
+            background-color: #45a049;
+        }
+        #editor-md {
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="path-container">
+            <input type="text" id="path-input" value="qt\p1001" placeholder="输入路径...">
+            <button id="submit-btn">提交</button>
+        </div>
+      
+        <div id="editor-md">
+            <textarea style="display:none;"># 欢迎使用 Markdown 编辑器
+
+**这是一个基于 Editor.md 的 Markdown 编辑器**
+
+- 支持实时预览
+- 支持多种 Markdown 语法
+- 点击提交按钮将内容打印到控制台
+
+```javascript
+console.log("Hello, Markdown!");
+```</textarea>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <!-- Editor.md -->
+    <script src="https://cdn.jsdelivr.net/npm/editor.md@1.5.0/editormd.min.js"></script>
+    
+    <script>
+        $(function() {
+            // 初始化 Editor.md
+            var editor = editormd("editor-md", {
+                path: "https://cdn.jsdelivr.net/npm/editor.md@1.5.0/lib/",
+                height: "100%",
+                saveHTMLToTextarea: true,
+                emoji: true,
+                taskList: true,
+                tex: true,
+                flowChart: true,
+                sequenceDiagram: true,
+                toolbarIcons: function() {
+                    return editormd.toolbarModes['full'];
+                }
+            });
+            
+            // 提交按钮点击事件
+            $("#submit-btn").click(function() {
+                var path = $("#path-input").val();
+                var markdownContent = editor.getMarkdown();
+                
+                console.log("路径:", path);
+                console.log("Markdown 内容:");
+                console.log(markdownContent);
+                
+                alert("内容已打印到控制台！请打开开发者工具查看。");
+            });
+        });
+    </script>
+</body>
+</html>
