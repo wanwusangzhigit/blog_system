@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown 编辑器</title>
-    
-    <!-- 使用国内 BootCDN 加速 -->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/editor.md/1.5.0/css/editormd.min.css">
+    <!-- Editor.md 的 CSS -->
+    <link rel="stylesheet" href="https://md1.wanwusangzhi.top/editor.md/css/editormd.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,125 +21,89 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .input-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 15px;
+        .path-container {
+            display: flex;
             margin-bottom: 20px;
         }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .input-label {
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #666;
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="password"] {
+        #path-input {
+            flex-grow: 1;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 14px;
-            flex-grow: 1;
+            font-size: 16px;
         }
         #submit-btn {
-            padding: 0 25px;
-            background-color: #238636;
+            padding: 10px 20px;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            height: 40px;
-            align-self: flex-end;
-            transition: background-color 0.2s;
+            font-size: 16px;
+            margin-left: 10px;
         }
         #submit-btn:hover {
-            background-color: #2ea043;
+            background-color: #45a049;
         }
         #editor-md {
-            height: calc(100vh - 220px);
-            min-height: 400px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            height: 500px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="input-container">
-            <div class="input-group">
-                <label class="input-label">路径</label>
-                <input type="text" id="path-input" value="qt\p1001" placeholder="输入路径...">
-            </div>
-            <div class="input-group">
-                <label class="input-label">GitHub Token</label>
-                <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-            </div>
+        <div class="path-container">
+            <input type="text" id="path-input" value="qt\p1001" placeholder="输入路径...">
             <button id="submit-btn">提交</button>
         </div>
-        
-        <!-- 编辑器容器必须包含隐藏的 textarea -->
+      
         <div id="editor-md">
-            <textarea style="display:none;"># 编辑器已正常工作
+            <textarea style="display:none;"># 欢迎使用 Markdown 编辑器
 
-**功能验证**
-1. 实时预览是否正常
-2. 工具栏图标是否显示
-3. 代码块高亮是否生效
+**这是一个基于 Editor.md 的 Markdown 编辑器**
+
+- 支持实时预览
+- 支持多种 Markdown 语法
+- 点击提交按钮将内容打印到控制台
 
 ```javascript
-// 测试代码高亮
-function test() {
-    console.log("Editor.md 运行正常");
-}
-```
-</textarea>
+console.log("Hello, Markdown!");
+```</textarea>
         </div>
     </div>
 
-    <!-- 使用国内 CDN 保证加载 -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/editor.md/1.5.0/editormd.min.js"></script>
+    <!-- jQuery -->
+    <script src="./jquery.js"></script>
+    <!-- Editor.md -->
+    <script src="https://md1.wanwusangzhi.top/editor.md/editormd.min.js"></script>
     
     <script>
         $(function() {
-            // 初始化配置（关键参数）
-            const editor = editormd("editor-md", {
-                path: "https://cdn.bootcdn.net/ajax/libs/editor.md/1.5.0/lib/",
+            // 初始化 Editor.md
+            var editor = editormd("editor-md", {
+                path: "https://md1.wanwusangzhi.top/editor.md/lib/",
                 height: "100%",
                 saveHTMLToTextarea: true,
                 emoji: true,
                 taskList: true,
                 tex: true,
-                codeFold: true,
-                searchReplace: true,
-                toolbarIcons: "full",
-                imageUpload: false,
                 flowChart: true,
-                sequenceDiagram: true
+                sequenceDiagram: true,
+                toolbarIcons: function() {
+                    return editormd.toolbarModes['full'];
+                }
             });
-
-            // 提交功能增强
+            
+            // 提交按钮点击事件
             $("#submit-btn").click(function() {
-                const output = {
-                    path: $("#path-input").val(),
-                    token: $("#github-token").val(),
-                    content: editor.getMarkdown()
-                };
-
-                console.groupCollapsed("提交数据");
-                console.log("路径:", output.path);
-                console.log("Token:", output.token);
-                console.log("内容:", output.content);
-                console.groupEnd();
-
-                alert(`数据已提交到控制台：
-路径长度：${output.path.length}
-内容行数：${output.content.split('\n').length}`);
+                var path = $("#path-input").val();
+                var markdownContent = editor.getMarkdown();
+                
+                console.log("路径:", path);
+                console.log("Markdown 内容:");
+                console.log(markdownContent);
+                
+                alert("内容已打印到控制台！请打开开发者工具查看。");
             });
         });
     </script>
