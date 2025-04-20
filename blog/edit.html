@@ -98,7 +98,7 @@ console.log("Hello, Markdown!");
             $("#submit-btn").click(function() {
                 var path = $("#path-input").val();
                 var markdownContent = editor.getMarkdown();
-                
+                var github_token=prompt("请输入github token(至少有读写权限):");
                 console.log("路径:", path);
                 console.log("Markdown 内容:");
                 console.log(markdownContent);
