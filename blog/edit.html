@@ -61,14 +61,7 @@
             <textarea style="display:none;"># 欢迎使用 Markdown 编辑器
 
 **这是一个基于 Editor.md 的 Markdown 编辑器**
-
-- 支持实时预览
-- 支持多种 Markdown 语法
-- 点击提交按钮将内容打印到控制台
-
-```javascript
-console.log("Hello, Markdown!");
-```</textarea>
+            </textarea>
         </div>
     </div>
 
@@ -78,6 +71,84 @@ console.log("Hello, Markdown!");
     <script src="https://md1.wanwusangzhi.top/editor.md/editormd.min.js"></script>
     
     <script>
+         async function uploadFileToGitHub(owner, repo, filePath, fileContent, branch, token) {
+    // 将文件内容转换为 Base64 编码
+    const base64Content = btoa(fileContent);
+
+    // 获取分支的最新提交的 SHA
+    const branchResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/branches/${branch}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+        }
+    });
+
+    if (!branchResponse.ok) {
+        throw new Error(`Failed to fetch branch info: ${branchResponse.statusText}`);
+    }
+
+    const branchData = await branchResponse.json();
+    const latestCommitSha = branchData.commit.sha;
+
+    // 创建一个新的提交
+    const commitResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/commits`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: 'Add new file via GitHub API',
+            tree: [
+                {
+                    path: filePath,
+                    mode: '100644',
+                    type: 'blob',
+                    content: base64Content
+                }
+            ],
+            parents: [latestCommitSha]
+        })
+    });
+
+    if (!commitResponse.ok) {
+        throw new Error(`Failed to create commit: ${commitResponse.statusText}`);
+    }
+
+    const commitData = await commitResponse.json();
+    const newCommitSha = commitData.sha;
+
+    // 更新分支的引用
+    const updateBranchResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/refs/heads/${branch}`, {
+        method: 'PATCH',
+        headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            sha: newCommitSha
+        })
+    });
+
+    if (!updateBranchResponse.ok) {
+        throw new Error(`Failed to update branch: ${updateBranchResponse.statusText}`);
+    }
+
+    console.log('File uploaded successfully!');
+}
+
+// 使用示例
+var owner = 'wanwusangzhigit'; // 替换为你的 GitHub 用户名
+var repo = 'blog_system'; // 替换为你的仓库名称
+var filePath = 'path/to/your/file.txt'; // 替换为目标文件路径
+var fileContent = 'Hello, world!'; // 替换为文件内容
+var branch = 'main'; // 替换为你的分支名称
+var token = 'your-personal-access-token'; // 替换为你的 GitHub 个人访问令牌
+
+
         $(function() {
             // 初始化 Editor.md
             var editor = editormd("editor-md", {
@@ -93,19 +164,22 @@ console.log("Hello, Markdown!");
                     return editormd.toolbarModes['full'];
                 }
             });
-            
+            var path="";
+            var markdownContent="";
+            var github_token="";
             // 提交按钮点击事件
             $("#submit-btn").click(function() {
-                var path = $("#path-input").val();
-                var markdownContent = editor.getMarkdown();
-                var github_token=prompt("请输入github token(至少有读写权限):");
+                path = $("#path-input").val();
+                markdownContent = editor.getMarkdown();
+                github_token=prompt("请输入github token(至少有读写权限):");
                 console.log("路径:", path);
                 console.log("Markdown 内容:");
                 console.log(markdownContent);
-                
-                alert("内容已打印到控制台！请打开开发者工具查看。");
+                uploadFileToGitHub(owner, repo, Path, markdownContent, branch, github_token);
+                alert("内容已经提交");
             });
         });
+       
     </script>
 </body>
 </html>
