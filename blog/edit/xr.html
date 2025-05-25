@@ -1,6 +1,7 @@
 <html>
 <head>
-    <!-- root -->
+    <!-- 明确文件路径（假设文件结构如下） -->
+    <!-- 项目根目录 -->
     <!-- ├─ css/ -->
     <!-- │  └─ prism-tomorrow.min.css -->
     <!-- └─ js/ -->
@@ -9,6 +10,7 @@
     <!--    ├─ prism-javascript.min.js -->
     <!--    └─ prism-python.min.js -->
     <link href="./css/prism-tomorrow.min.css" rel="stylesheet">
+    <!-- 加载顺序：先加载依赖库 -->
     <script src="./js/marked.min.js"></script>
     <script src="./js/prism.min.js"></script>
     <script src="./js/prism-javascript.min.js"></script>
@@ -20,10 +22,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             function renderDarkMarkdown(markdownContent) {
                 try {
+                    // 检查Marked库是否加载成功
                     if (!window.marked) {
                         throw new Error('Marked库加载失败，请检查js/marked.min.js路径');
                     }
-
+                    
                     // 检查Prism库是否加载成功
                     if (!window.Prism) {
                         throw new Error('Prism库加载失败，请检查js/prism.min.js路径');
@@ -86,10 +89,30 @@
                     return null;
                 }
             }
-            const testMarkdown = ' #我是人 \n ``` cpp ``` ';
+
+            // 测试用例
+            const testMarkdown = `
+                # 暗黑风格渲染测试
+                ## 代码示例
+                \`\`\`javascript
+                // JavaScript示例
+                function greet(name) {
+                    console.log(\`Hello, \${name}!\`);
+                }
+                greet('暗黑风格');
+                \`\`\`
+
+                \`\`\`python
+                # Python示例
+                def calculate(a, b):
+                    return a * b + 2025
+                print("计算结果:", calculate(5, 3))
+                \`\`\`
+            `;
 
             renderDarkMarkdown(testMarkdown);
         });
     </script>
 </body>
 </html>
+    
