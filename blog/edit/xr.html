@@ -1,0 +1,95 @@
+<html>
+<head>
+    <!-- root -->
+    <!-- ├─ css/ -->
+    <!-- │  └─ prism-tomorrow.min.css -->
+    <!-- └─ js/ -->
+    <!--    ├─ marked.min.js -->
+    <!--    ├─ prism.min.js -->
+    <!--    ├─ prism-javascript.min.js -->
+    <!--    └─ prism-python.min.js -->
+    <link href="./css/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="./js/marked.min.js"></script>
+    <script src="./js/prism.min.js"></script>
+    <script src="./js/prism-javascript.min.js"></script>
+    <script src="./js/prism-python.min.js"></script>
+</head>
+<body>
+    <script>
+        // 确保所有依赖加载完成后执行
+        document.addEventListener('DOMContentLoaded', () => {
+            function renderDarkMarkdown(markdownContent) {
+                try {
+                    if (!window.marked) {
+                        throw new Error('Marked库加载失败，请检查js/marked.min.js路径');
+                    }
+
+                    // 检查Prism库是否加载成功
+                    if (!window.Prism) {
+                        throw new Error('Prism库加载失败，请检查js/prism.min.js路径');
+                    }
+
+                    // 配置marked库（v9+版本API）
+                    marked.setOptions({
+                        breaks: true,
+                        sanitize: true,
+                        gfm: true,
+                        highlight: (code, lang) => {
+                            // 检查语言组件是否加载（如Python）
+                            if (lang && !Prism.languages[lang]) {
+                                console.warn(`Prism未找到${lang}语言组件，请检查js/prism-${lang}.min.js是否引入`);
+                            }
+                            return `<pre class="language-${lang}"><code class="language-${lang}">${code}</code></pre>`;
+                        }
+                    });
+
+                    const darkStyle = `
+                        .dark-markdown {
+                            max-width: 800px;
+                            margin: 20px auto;
+                            background-color: #1a1a1a;
+                            color: #ffffff;
+                            padding: 24px;
+                            border-radius: 8px;
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            line-height: 1.6;
+                        }
+                        .dark-markdown pre[class*="language-"] {
+                            margin: 12px 0;
+                            padding: 16px;
+                            border-radius: 4px;
+                        }
+                        .dark-markdown code[class*="language-"] {
+                            font-size: 0.95em;
+                        }
+                    `;
+
+                    const htmlContent = marked.parse(markdownContent);
+                    const fullHtml = `
+                        <div class="dark-markdown">
+                            <style>${darkStyle}</style>
+                            ${htmlContent}
+                        </div>
+                    `;
+
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = fullHtml;
+                    Prism.highlightAllUnder(tempDiv);
+
+                    console.log('%c渲染后的暗黑风格HTML（含代码高亮）：', 'color: #4a9cff; font-weight: bold');
+                    console.log(tempDiv.innerHTML);
+
+                    return tempDiv.innerHTML;
+
+                } catch (error) {
+                    console.error('渲染过程中发生错误：', error.message);
+                    return null;
+                }
+            }
+            const testMarkdown = ' #我是人 \n ``` cpp ``` ';
+
+            renderDarkMarkdown(testMarkdown);
+        });
+    </script>
+</body>
+</html>
