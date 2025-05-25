@@ -88,10 +88,21 @@
             margin-bottom: 20px;
             border-radius: 4px;
         }
+        .library-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div id="library-error" class="library-error" style="display: none;">
+            <strong>库加载错误!</strong> <span id="library-error-message"></span>
+        </div>
+        
         <div id="config-error" class="config-error" style="display: none;">
             <strong>配置错误!</strong> <span id="config-error-message"></span>
         </div>
@@ -125,7 +136,9 @@ $$
 E=mc^2
 $$
 
-### 流程图st=>start: 开始
+### 流程图
+```flow
+st=>start: 开始
 e=>end: 结束
 op1=>operation: 编辑 Markdown
 op2=>operation: 设置文件路径
@@ -135,6 +148,8 @@ cond=>condition: 操作成功?
 st->op1->op2->op3->cond
 cond(yes)->e
 cond(no)->op1
+```
+
 ### 任务列表
 - [ ] 学习 Markdown 语法
 - [x] 尝试使用编辑器
@@ -144,13 +159,24 @@ cond(no)->op1
     </div>
 
     <!-- jQuery -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <!-- Editor.md -->
     <script src="https://md1.wanwusangzhi.top/editor.md/editormd.min.js"></script>
     
     <script>
         // 配置对象
         let config = null;
+        
+        // 检查库是否加载成功
+        function checkLibrariesLoaded() {
+            if (typeof $ === 'undefined') {
+                throw new Error('jQuery 加载失败');
+            }
+            
+            if (typeof editormd === 'undefined') {
+                throw new Error('Editor.md 加载失败');
+            }
+        }
         
         // 加载配置
         async function loadConfig() {
@@ -330,6 +356,9 @@ cond(no)->op1
         // 初始化编辑器
         async function initEditor() {
             try {
+                // 检查库是否加载成功
+                checkLibrariesLoaded();
+                
                 // 加载配置
                 await loadConfig();
                 
@@ -432,13 +461,21 @@ cond(no)->op1
                 console.log('编辑器初始化完成');
             } catch (error) {
                 console.error('初始化编辑器时出错:', error);
-                showNotification('error', `初始化编辑器失败: ${error.message}`);
+                
+                // 显示库加载错误
+                if (error.message.includes('jQuery') || error.message.includes('Editor.md')) {
+                    const libraryErrorElement = document.getElementById('library-error');
+                    const libraryErrorMessageElement = document.getElementById('library-error-message');
+                    libraryErrorMessageElement.textContent = error.message;
+                    libraryErrorElement.style.display = 'block';
+                } else {
+                    showNotification('error', `初始化编辑器失败: ${error.message}`);
+                }
             }
         }
 
         // 当 DOM 加载完成后初始化编辑器
-        document.addEventListener('DOMContentLoaded', initEditor);
+        $(document).ready(initEditor);
     </script>
 </body>
 </html>
-    
