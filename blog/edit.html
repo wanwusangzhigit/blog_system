@@ -45,15 +45,40 @@
         #submit-btn:hover {
             background-color: #45a049;
         }
+        #submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
         #editor-md {
-            height: 1000px;
+            height: 800px;
+        }
+        .notification {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        .notification.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .notification.error {
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="notification success" id="success-notification">
+            <strong>成功!</strong> <span id="success-message"></span>
+        </div>
+        <div class="notification error" id="error-notification">
+            <strong>错误!</strong> <span id="error-message"></span>
+        </div>
+        
         <div class="path-container">
-            <input type="text" id="path-input" value="qt\p1001" placeholder="输入路径...">
+            <input type="text" id="path-input" value="qt/p1001.md" placeholder="输入路径...">
             <button id="submit-btn">提交</button>
         </div>
       
@@ -61,93 +86,123 @@
             <textarea style="display:none;"># 欢迎使用 Markdown 编辑器
 
 **这是一个基于 Editor.md 的 Markdown 编辑器**
-            </textarea>
+
+您可以在此编辑 Markdown 内容，并将其保存到 GitHub 仓库中。支持中文、数学公式、流程图等多种格式。
+
+## 示例内容
+
+### 数学公式
+$E=mc^2$
+
+### 流程图
+```flow
+st=>start: 开始
+e=>end: 结束
+op1=>operation: 编辑 Markdown
+op2=>operation: 设置文件路径
+op3=>operation: 提交到 GitHub
+cond=>condition: 操作成功?
+
+st->op1->op2->op3->cond
+cond(yes)->e
+cond(no)->op1
+```
+
+### 任务列表
+- [ ] 学习 Markdown 语法
+- [x] 尝试使用编辑器
+- [ ] 将内容发布到 GitHub
+</textarea>
         </div>
     </div>
 
     <!-- jQuery -->
-    <script src="./jquery.js"></script>
+    <script src=".\jquery.js"></script>
     <!-- Editor.md -->
     <script src="https://md1.wanwusangzhi.top/editor.md/editormd.min.js"></script>
     
     <script>
-         async function uploadFileToGitHub(owner, repo, filePath, fileContent, branch, token) {
-    // 将文件内容转换为 Base64 编码
-    const base64Content = btoa(fileContent);
+        // GitHub 配置 - 请替换为您自己的信息
+        const config = {
+            owner: 'your-github-username',     // 替换为您的 GitHub 用户名
+            repo: 'your-repository-name',      // 替换为您的仓库名称
+            branch: 'main'                     // 替换为您的分支名称
+        };
 
-    // 获取分支的最新提交的 SHA
-    const branchResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/branches/${branch}`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
+        // 正确处理 Unicode 字符的 Base64 编码
+        function encodeContentToBase64(content) {
+            const encoder = new TextEncoder();
+            const uint8Array = encoder.encode(content);
+            return btoa(String.fromCharCode.apply(null, uint8Array));
         }
-    });
 
-    if (!branchResponse.ok) {
-        throw new Error(`Failed to fetch branch info: ${branchResponse.statusText}`);
-    }
-
-    const branchData = await branchResponse.json();
-    const latestCommitSha = branchData.commit.sha;
-
-    // 创建一个新的提交
-    const commitResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/commits`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            message: 'Add new file via GitHub API',
-            tree: [
-                {
-                    path: filePath,
-                    mode: '100644',
-                    type: 'blob',
-                    content: base64Content
+        // 上传文件到 GitHub
+        async function uploadFileToGitHub(filePath, fileContent, token) {
+            try {
+                // 准备文件内容
+                const base64Content = encodeContentToBase64(fileContent);
+                
+                // 检查文件是否已存在，获取 SHA 值
+                let currentFileSha = null;
+                try {
+                    const fileResponse = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${filePath}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (fileResponse.ok) {
+                        const fileData = await fileResponse.json();
+                        currentFileSha = fileData.sha;
+                    }
+                } catch (error) {
+                    // 文件不存在，继续创建
                 }
-            ],
-            parents: [latestCommitSha]
-        })
-    });
 
-    if (!commitResponse.ok) {
-        throw new Error(`Failed to create commit: ${commitResponse.statusText}`);
-    }
+                // 创建或更新文件
+                const fileResponse = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${filePath}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update file via GitHub API',
+                        content: base64Content,
+                        sha: currentFileSha,
+                        branch: config.branch
+                    })
+                });
 
-    const commitData = await commitResponse.json();
-    const newCommitSha = commitData.sha;
+                if (!fileResponse.ok) {
+                    const errorData = await fileResponse.json();
+                    throw new Error(`提交失败: ${errorData.message}`);
+                }
 
-    // 更新分支的引用
-    const updateBranchResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/refs/heads/${branch}`, {
-        method: 'PATCH',
-        headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            sha: newCommitSha
-        })
-    });
+                console.log('文件上传成功!');
+                return await fileResponse.json();
+            } catch (error) {
+                console.error('上传错误:', error);
+                throw error;
+            }
+        }
 
-    if (!updateBranchResponse.ok) {
-        throw new Error(`Failed to update branch: ${updateBranchResponse.statusText}`);
-    }
-
-    console.log('File uploaded successfully!');
-}
-
-// 使用示例
-var owner = 'wanwusangzhigit'; // 替换为你的 GitHub 用户名
-var repo = 'blog_system'; // 替换为你的仓库名称
-var filePath = 'path/to/your/file.txt'; // 替换为目标文件路径
-var fileContent = 'Hello, world!'; // 替换为文件内容
-var branch = 'main'; // 替换为你的分支名称
-var token = 'your-personal-access-token'; // 替换为你的 GitHub 个人访问令牌
-
+        // 显示通知
+        function showNotification(type, message) {
+            const notification = document.getElementById(`${type}-notification`);
+            const messageElement = document.getElementById(`${type}-message`);
+            
+            messageElement.textContent = message;
+            notification.style.display = 'block';
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
 
         $(function() {
             // 初始化 Editor.md
@@ -164,22 +219,54 @@ var token = 'your-personal-access-token'; // 替换为你的 GitHub 个人访问
                     return editormd.toolbarModes['full'];
                 }
             });
-            var path="";
-            var markdownContent="";
-            var github_token="";
+
             // 提交按钮点击事件
-            $("#submit-btn").click(function() {
-                path = $("#path-input").val();
-                markdownContent = editor.getMarkdown();
-                github_token=prompt("请输入github token(至少有读写权限):");
-                console.log("路径:", path);
-                console.log("Markdown 内容:");
-                console.log(markdownContent);
-                uploadFileToGitHub(owner, repo, path, markdownContent, branch, github_token);
-                alert("内容已经提交");
+            $("#submit-btn").click(async function() {
+                const path = $("#path-input").val().trim();
+                const markdownContent = editor.getMarkdown();
+                
+                if (!path) {
+                    showNotification('error', '请输入文件路径');
+                    return;
+                }
+                
+                // 确保路径有 .md 扩展名
+                if (!path.endsWith('.md')) {
+                    if (confirm('文件路径没有 .md 扩展名，是否添加？')) {
+                        $("#path-input").val(path + '.md');
+                    }
+                }
+                
+                const githubToken = prompt("请输入 GitHub Token (需要 repo 权限):");
+                
+                if (!githubToken) {
+                    showNotification('error', '操作已取消：需要提供 GitHub Token');
+                    return;
+                }
+                
+                try {
+                    // 禁用按钮并显示加载状态
+                    $(this).prop('disabled', true).text('上传中...');
+                    
+                    // 上传文件到 GitHub
+                    const result = await uploadFileToGitHub(path, markdownContent, githubToken);
+                    
+                    // 显示成功通知
+                    showNotification('success', `内容已成功提交到 GitHub! 提交 SHA: ${result.commit.sha}`);
+                    
+                    // 打开 GitHub 上的文件链接（可选）
+                    if (confirm('是否在浏览器中打开此文件？')) {
+                        window.open(`https://github.com/${config.owner}/${config.repo}/blob/${config.branch}/${path}`, '_blank');
+                    }
+                } catch (error) {
+                    // 显示错误通知
+                    showNotification('error', error.message);
+                } finally {
+                    // 恢复按钮状态
+                    $(this).prop('disabled', false).text('提交');
+                }
             });
         });
-       
     </script>
 </body>
 </html>
