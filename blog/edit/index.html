@@ -102,18 +102,18 @@
         <div id="library-error" class="library-error" style="display: none;">
             <strong>库加载错误!</strong> <span id="library-error-message"></span>
         </div>
-        
+
         <div id="config-error" class="config-error" style="display: none;">
             <strong>配置错误!</strong> <span id="config-error-message"></span>
         </div>
-        
+
         <div class="notification success" id="success-notification">
             <strong>成功!</strong> <span id="success-message"></span>
         </div>
         <div class="notification error" id="error-notification">
             <strong>错误!</strong> <span id="error-message"></span>
         </div>
-        
+
         <div class="path-container">
             <input type="text" id="path-input" value="qt/p1001.md" placeholder="输入路径...">
             <button id="submit-btn">
@@ -121,7 +121,7 @@
                 <span>提交</span>
             </button>
         </div>
-      
+
         <div id="editor-md">
             <textarea style="display:none;"># 欢迎使用 Markdown 编辑器
 
@@ -162,22 +162,22 @@ cond(no)->op1
     <script src="./jquery.js"></script>
     <!-- Editor.md -->
     <script src="/editor.md/editor.md/editormd.js"></script>
-    
+
     <script>
         // 配置对象
         let config = null;
-        
+
         // 检查库是否加载成功
         function checkLibrariesLoaded() {
             if (typeof $ === 'undefined') {
                 throw new Error('jQuery 加载失败');
             }
-            
+
             if (typeof editormd === 'undefined') {
                 throw new Error('Editor.md 加载失败');
             }
         }
-        
+
         // 加载配置
         async function loadConfig() {
             try {
@@ -188,29 +188,29 @@ cond(no)->op1
                     console.log('从本地存储加载配置成功');
                     return config;
                 }
-                
+
                 // 尝试从服务器加载配置
                 const response = await fetch('/config.json');
                 if (!response.ok) {
                     throw new Error(`HTTP错误! 状态码: ${response.status}`);
                 }
-                
+
                 config = await response.json();
                 console.log('配置文件加载成功');
-                
+
                 // 保存配置到本地存储
                 localStorage.setItem('githubConfig', JSON.stringify(config));
-                
+
                 return config;
             } catch (error) {
                 console.error('加载配置文件时出错:', error.message);
-                
+
                 // 显示配置错误信息
                 const configErrorElement = document.getElementById('config-error');
                 const configErrorMessageElement = document.getElementById('config-error-message');
                 configErrorMessageElement.textContent = `无法加载配置文件: ${error.message}，请手动配置仓库信息。`;
                 configErrorElement.style.display = 'block';
-                
+
                 // 创建手动配置表单
                 const manualConfigForm = document.createElement('div');
                 manualConfigForm.className = 'mt-4 p-4 bg-light border rounded';
@@ -232,27 +232,27 @@ cond(no)->op1
                         保存配置
                     </button>
                 `;
-                
+
                 configErrorElement.appendChild(manualConfigForm);
-                
+
                 // 保存手动配置
                 document.getElementById('save-manual-config').addEventListener('click', () => {
                     const owner = document.getElementById('manual-owner').value.trim();
                     const repo = document.getElementById('manual-repo').value.trim();
                     const branch = document.getElementById('manual-branch').value.trim();
-                    
+
                     if (!owner || !repo || !branch) {
                         showNotification('error', '请填写所有配置字段');
                         return;
                     }
-                    
+
                     config = { owner, repo, branch };
                     localStorage.setItem('githubConfig', JSON.stringify(config));
-                    
+
                     configErrorElement.style.display = 'none';
                     showNotification('success', '配置已保存');
                 });
-                
+
                 throw new Error('请手动配置仓库信息');
             }
         }
@@ -269,11 +269,11 @@ cond(no)->op1
             if (!config) {
                 throw new Error('未配置 GitHub 仓库信息');
             }
-            
+
             try {
                 // 准备文件内容
                 const base64Content = encodeContentToBase64(fileContent);
-                
+
                 // 检查文件是否已存在，获取 SHA 值
                 let currentFileSha = null;
                 try {
@@ -284,7 +284,7 @@ cond(no)->op1
                             'Accept': 'application/vnd.github.v3+json'
                         }
                     });
-                    
+
                     if (fileResponse.ok) {
                         const fileData = await fileResponse.json();
                         currentFileSha = fileData.sha;
@@ -319,7 +319,7 @@ cond(no)->op1
                 return await fileResponse.json();
             } catch (error) {
                 console.error('上传错误:', error);
-                
+
                 // 处理常见错误
                 if (error.message.includes('Bad credentials')) {
                     throw new Error('GitHub Token 无效，请检查您的 Token');
@@ -330,7 +330,7 @@ cond(no)->op1
                 } else if (error.message.includes('branch')) {
                     throw new Error(`分支 "${config.branch}" 不存在`);
                 }
-                
+
                 throw error;
             }
         }
@@ -339,11 +339,11 @@ cond(no)->op1
         function showNotification(type, message) {
             const notification = document.getElementById(`${type}-notification`);
             const messageElement = document.getElementById(`${type}-message`);
-            
+
             messageElement.textContent = message;
             notification.style.display = 'block';
             notification.style.opacity = '1';
-            
+
             // 5秒后隐藏通知
             setTimeout(() => {
                 notification.style.opacity = '0';
@@ -358,10 +358,10 @@ cond(no)->op1
             try {
                 // 检查库是否加载成功
                 checkLibrariesLoaded();
-                
+
                 // 加载配置
                 await loadConfig();
-                
+
                 // 初始化 Editor.md
                 const editor = editormd("editor-md", {
                     path: "/editor.md/editor.md/lib/",
@@ -381,52 +381,52 @@ cond(no)->op1
                 const submitBtn = document.getElementById('submit-btn');
                 const submitBtnText = submitBtn.querySelector('span:last-child');
                 const spinner = submitBtn.querySelector('.spinner');
-                
+
                 submitBtn.addEventListener('click', async function() {
                     const path = document.getElementById('path-input').value.trim();
                     const markdownContent = editor.getMarkdown();
-                    
+
                     if (!path) {
                         showNotification('error', '请输入文件路径');
                         return;
                     }
-                    
+
                     // 确保路径有 .md 扩展名
                     if (!path.endsWith('.md')) {
                         if (confirm('文件路径没有 .md 扩展名，是否添加？')) {
                             document.getElementById('path-input').value = path + '.md';
                         }
                     }
-                    
+
                     // 从本地存储获取 GitHub Token
                     let githubToken = localStorage.getItem('githubToken');
-                    
+
                     if (!githubToken) {
                         githubToken = prompt("请输入 GitHub Token (需要 repo 权限):");
-                        
+
                         if (!githubToken) {
                             showNotification('error', '操作已取消：需要提供 GitHub Token');
                             return;
                         }
-                        
+
                         // 询问用户是否要保存 Token
                         if (confirm("是否保存 Token 以便下次使用？（保存在浏览器本地）")) {
                             localStorage.setItem('githubToken', githubToken);
                         }
                     }
-                    
+
                     try {
                         // 禁用按钮并显示加载状态
                         submitBtn.disabled = true;
                         spinner.style.display = 'inline-block';
                         submitBtnText.textContent = '上传中...';
-                        
+
                         // 上传文件到 GitHub
                         const result = await uploadFileToGitHub(path, markdownContent, githubToken);
-                        
+
                         // 显示成功通知
                         showNotification('success', `内容已成功提交到 GitHub! 提交 SHA: ${result.commit.sha}`);
-                        
+
                         // 打开 GitHub 上的文件链接（可选）
                         if (confirm('是否在浏览器中打开此文件？')) {
                             window.open(`https://github.com/${config.owner}/${config.repo}/blob/${config.branch}/${path}`, '_blank');
@@ -434,7 +434,7 @@ cond(no)->op1
                     } catch (error) {
                         // 显示错误通知
                         showNotification('error', error.message);
-                        
+
                         // 如果是 Token 错误，删除保存的 Token
                         if (error.message.includes('Token') || error.message.includes('credentials')) {
                             localStorage.removeItem('githubToken');
@@ -446,7 +446,7 @@ cond(no)->op1
                         submitBtnText.textContent = '提交';
                     }
                 });
-                
+
                 // 添加清除 Token 按钮
                 const clearTokenBtn = document.createElement('button');
                 clearTokenBtn.className = 'mt-2 ml-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500';
@@ -455,13 +455,13 @@ cond(no)->op1
                     localStorage.removeItem('githubToken');
                     showNotification('success', '已清除保存的 GitHub Token');
                 });
-                
+
                 document.querySelector('.path-container').appendChild(clearTokenBtn);
-                
+
                 console.log('编辑器初始化完成');
             } catch (error) {
                 console.error('初始化编辑器时出错:', error);
-                
+
                 // 显示库加载错误
                 if (error.message.includes('jQuery') || error.message.includes('Editor.md')) {
                     const libraryErrorElement = document.getElementById('library-error');
