@@ -124,12 +124,21 @@ cond(no)->op1
     <script src="https://md1.wanwusangzhi.top/editor.md/editormd.min.js"></script>
     
     <script>
-        // GitHub 配置 - 请替换为您自己的信息
-        const config = {
-            owner: 'wanwusangzhigit',     // 替换为您的 GitHub 用户名
-            repo: 'blog_system',      // 替换为您的仓库名称
-            branch: 'main'                     // 替换为您的分支名称
-        };
+        async function loadConfig() {
+  try {
+    const response = await fetch('/config.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const config = await response.json();
+    console.log('配置文件加载成功');
+    return config;
+  } catch (error) {
+    console.error('加载配置文件时出错:', error.message);
+    throw error;
+  }
+}
+var config=loadConfig();
 
         // 正确处理 Unicode 字符的 Base64 编码
         function encodeContentToBase64(content) {
