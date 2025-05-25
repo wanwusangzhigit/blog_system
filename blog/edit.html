@@ -57,6 +57,7 @@
             margin-bottom: 20px;
             border-radius: 4px;
             display: none;
+            transition: opacity 0.5s ease-in-out;
         }
         .notification.success {
             background-color: #d4edda;
@@ -66,10 +67,35 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        .spinner {
+            display: none;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .config-error {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div id="config-error" class="config-error" style="display: none;">
+            <strong>配置错误!</strong> <span id="config-error-message"></span>
+        </div>
+        
         <div class="notification success" id="success-notification">
             <strong>成功!</strong> <span id="success-message"></span>
         </div>
@@ -79,7 +105,10 @@
         
         <div class="path-container">
             <input type="text" id="path-input" value="qt/p1001.md" placeholder="输入路径...">
-            <button id="submit-btn">提交</button>
+            <button id="submit-btn">
+                <span class="spinner"></span>
+                <span>提交</span>
+            </button>
         </div>
       
         <div id="editor-md">
@@ -96,9 +125,7 @@ $$
 E=mc^2
 $$
 
-### 流程图
-```flow
-st=>start: 开始
+### 流程图st=>start: 开始
 e=>end: 结束
 op1=>operation: 编辑 Markdown
 op2=>operation: 设置文件路径
@@ -108,8 +135,6 @@ cond=>condition: 操作成功?
 st->op1->op2->op3->cond
 cond(yes)->e
 cond(no)->op1
-```
-
 ### 任务列表
 - [ ] 学习 Markdown 语法
 - [x] 尝试使用编辑器
@@ -119,26 +144,92 @@ cond(no)->op1
     </div>
 
     <!-- jQuery -->
-    <script src=".\jquery.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Editor.md -->
     <script src="https://md1.wanwusangzhi.top/editor.md/editormd.min.js"></script>
     
     <script>
+        // 配置对象
+        let config = null;
+        
+        // 加载配置
         async function loadConfig() {
-  try {
-    const response = await fetch('/config.json');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const config = await response.json();
-    console.log('配置文件加载成功');
-    return config;
-  } catch (error) {
-    console.error('加载配置文件时出错:', error.message);
-    throw error;
-  }
-}
-var config=loadConfig();
+            try {
+                // 尝试从本地存储加载配置
+                const savedConfig = localStorage.getItem('githubConfig');
+                if (savedConfig) {
+                    config = JSON.parse(savedConfig);
+                    console.log('从本地存储加载配置成功');
+                    return config;
+                }
+                
+                // 尝试从服务器加载配置
+                const response = await fetch('/config.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+                
+                config = await response.json();
+                console.log('配置文件加载成功');
+                
+                // 保存配置到本地存储
+                localStorage.setItem('githubConfig', JSON.stringify(config));
+                
+                return config;
+            } catch (error) {
+                console.error('加载配置文件时出错:', error.message);
+                
+                // 显示配置错误信息
+                const configErrorElement = document.getElementById('config-error');
+                const configErrorMessageElement = document.getElementById('config-error-message');
+                configErrorMessageElement.textContent = `无法加载配置文件: ${error.message}，请手动配置仓库信息。`;
+                configErrorElement.style.display = 'block';
+                
+                // 创建手动配置表单
+                const manualConfigForm = document.createElement('div');
+                manualConfigForm.className = 'mt-4 p-4 bg-light border rounded';
+                manualConfigForm.innerHTML = `
+                    <h4 class="font-bold mb-2">手动配置 GitHub 仓库</h4>
+                    <div class="mb-2">
+                        <label class="block text-sm font-medium text-gray-700">所有者:</label>
+                        <input type="text" id="manual-owner" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" placeholder="GitHub 用户名或组织名">
+                    </div>
+                    <div class="mb-2">
+                        <label class="block text-sm font-medium text-gray-700">仓库名称:</label>
+                        <input type="text" id="manual-repo" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" placeholder="仓库名称">
+                    </div>
+                    <div class="mb-2">
+                        <label class="block text-sm font-medium text-gray-700">分支:</label>
+                        <input type="text" id="manual-branch" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" value="main" placeholder="分支名称">
+                    </div>
+                    <button id="save-manual-config" class="mt-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        保存配置
+                    </button>
+                `;
+                
+                configErrorElement.appendChild(manualConfigForm);
+                
+                // 保存手动配置
+                document.getElementById('save-manual-config').addEventListener('click', () => {
+                    const owner = document.getElementById('manual-owner').value.trim();
+                    const repo = document.getElementById('manual-repo').value.trim();
+                    const branch = document.getElementById('manual-branch').value.trim();
+                    
+                    if (!owner || !repo || !branch) {
+                        showNotification('error', '请填写所有配置字段');
+                        return;
+                    }
+                    
+                    config = { owner, repo, branch };
+                    localStorage.setItem('githubConfig', JSON.stringify(config));
+                    
+                    configErrorElement.style.display = 'none';
+                    showNotification('success', '配置已保存');
+                });
+                
+                throw new Error('请手动配置仓库信息');
+            }
+        }
 
         // 正确处理 Unicode 字符的 Base64 编码
         function encodeContentToBase64(content) {
@@ -149,6 +240,10 @@ var config=loadConfig();
 
         // 上传文件到 GitHub
         async function uploadFileToGitHub(filePath, fileContent, token) {
+            if (!config) {
+                throw new Error('未配置 GitHub 仓库信息');
+            }
+            
             try {
                 // 准备文件内容
                 const base64Content = encodeContentToBase64(fileContent);
@@ -170,6 +265,7 @@ var config=loadConfig();
                     }
                 } catch (error) {
                     // 文件不存在，继续创建
+                    console.log('文件不存在，准备创建新文件');
                 }
 
                 // 创建或更新文件
@@ -197,6 +293,18 @@ var config=loadConfig();
                 return await fileResponse.json();
             } catch (error) {
                 console.error('上传错误:', error);
+                
+                // 处理常见错误
+                if (error.message.includes('Bad credentials')) {
+                    throw new Error('GitHub Token 无效，请检查您的 Token');
+                } else if (error.message.includes('Not Found')) {
+                    throw new Error('未找到仓库，请检查仓库名称和所有者');
+                } else if (error.message.includes('Repository not found')) {
+                    throw new Error('未找到仓库，请检查仓库名称和所有者');
+                } else if (error.message.includes('branch')) {
+                    throw new Error(`分支 "${config.branch}" 不存在`);
+                }
+                
                 throw error;
             }
         }
@@ -208,76 +316,129 @@ var config=loadConfig();
             
             messageElement.textContent = message;
             notification.style.display = 'block';
+            notification.style.opacity = '1';
             
-            // 3秒后隐藏通知
+            // 5秒后隐藏通知
             setTimeout(() => {
-                notification.style.display = 'none';
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 500);
             }, 5000);
         }
 
-        $(function() {
-            // 初始化 Editor.md
-            var editor = editormd("editor-md", {
-                path: "https://md1.wanwusangzhi.top/editor.md/lib/",
-                height: "100%",
-                saveHTMLToTextarea: true,
-                emoji: true,
-                taskList: true,
-                tex: true,
-                flowChart: true,
-                sequenceDiagram: true,
-                toolbarIcons: function() {
-                    return editormd.toolbarModes['full'];
-                }
-            });
+        // 初始化编辑器
+        async function initEditor() {
+            try {
+                // 加载配置
+                await loadConfig();
+                
+                // 初始化 Editor.md
+                const editor = editormd("editor-md", {
+                    path: "https://md1.wanwusangzhi.top/editor.md/lib/",
+                    height: "100%",
+                    saveHTMLToTextarea: true,
+                    emoji: true,
+                    taskList: true,
+                    tex: true,
+                    flowChart: true,
+                    sequenceDiagram: true,
+                    toolbarIcons: function() {
+                        return editormd.toolbarModes['full'];
+                    }
+                });
 
-            // 提交按钮点击事件
-            $("#submit-btn").click(async function() {
-                const path = $("#path-input").val().trim();
-                const markdownContent = editor.getMarkdown();
+                // 提交按钮点击事件
+                const submitBtn = document.getElementById('submit-btn');
+                const submitBtnText = submitBtn.querySelector('span:last-child');
+                const spinner = submitBtn.querySelector('.spinner');
                 
-                if (!path) {
-                    showNotification('error', '请输入文件路径');
-                    return;
-                }
-                
-                // 确保路径有 .md 扩展名
-                if (!path.endsWith('.md')) {
-                    if (confirm('文件路径没有 .md 扩展名，是否添加？')) {
-                        $("#path-input").val(path + '.md');
+                submitBtn.addEventListener('click', async function() {
+                    const path = document.getElementById('path-input').value.trim();
+                    const markdownContent = editor.getMarkdown();
+                    
+                    if (!path) {
+                        showNotification('error', '请输入文件路径');
+                        return;
                     }
-                }
-                
-                const githubToken = prompt("请输入 GitHub Token (需要 repo 权限):");
-                
-                if (!githubToken) {
-                    showNotification('error', '操作已取消：需要提供 GitHub Token');
-                    return;
-                }
-                
-                try {
-                    // 禁用按钮并显示加载状态
-                    $(this).prop('disabled', true).text('上传中...');
                     
-                    // 上传文件到 GitHub
-                    const result = await uploadFileToGitHub(path, markdownContent, githubToken);
-                    
-                    // 显示成功通知
-                    showNotification('success', `内容已成功提交到 GitHub! 提交 SHA: ${result.commit.sha}`);
-                    
-                    // 打开 GitHub 上的文件链接（可选）
-                    if (confirm('是否在浏览器中打开此文件？')) {
-                        window.open(`https://github.com/${config.owner}/${config.repo}/blob/${config.branch}/${path}`, '_blank');
+                    // 确保路径有 .md 扩展名
+                    if (!path.endsWith('.md')) {
+                        if (confirm('文件路径没有 .md 扩展名，是否添加？')) {
+                            document.getElementById('path-input').value = path + '.md';
+                        }
                     }
-                } catch (error) {
-                    // 显示错误通知
-                    showNotification('error', error.message);
-                } finally {
-                    // 恢复按钮状态
-                    $(this).prop('disabled', false).text('提交');
-                }
-            });
-        });
+                    
+                    // 从本地存储获取 GitHub Token
+                    let githubToken = localStorage.getItem('githubToken');
+                    
+                    if (!githubToken) {
+                        githubToken = prompt("请输入 GitHub Token (需要 repo 权限):");
+                        
+                        if (!githubToken) {
+                            showNotification('error', '操作已取消：需要提供 GitHub Token');
+                            return;
+                        }
+                        
+                        // 询问用户是否要保存 Token
+                        if (confirm("是否保存 Token 以便下次使用？（保存在浏览器本地）")) {
+                            localStorage.setItem('githubToken', githubToken);
+                        }
+                    }
+                    
+                    try {
+                        // 禁用按钮并显示加载状态
+                        submitBtn.disabled = true;
+                        spinner.style.display = 'inline-block';
+                        submitBtnText.textContent = '上传中...';
+                        
+                        // 上传文件到 GitHub
+                        const result = await uploadFileToGitHub(path, markdownContent, githubToken);
+                        
+                        // 显示成功通知
+                        showNotification('success', `内容已成功提交到 GitHub! 提交 SHA: ${result.commit.sha}`);
+                        
+                        // 打开 GitHub 上的文件链接（可选）
+                        if (confirm('是否在浏览器中打开此文件？')) {
+                            window.open(`https://github.com/${config.owner}/${config.repo}/blob/${config.branch}/${path}`, '_blank');
+                        }
+                    } catch (error) {
+                        // 显示错误通知
+                        showNotification('error', error.message);
+                        
+                        // 如果是 Token 错误，删除保存的 Token
+                        if (error.message.includes('Token') || error.message.includes('credentials')) {
+                            localStorage.removeItem('githubToken');
+                        }
+                    } finally {
+                        // 恢复按钮状态
+                        submitBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        submitBtnText.textContent = '提交';
+                    }
+                });
+                
+                // 添加清除 Token 按钮
+                const clearTokenBtn = document.createElement('button');
+                clearTokenBtn.className = 'mt-2 ml-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500';
+                clearTokenBtn.textContent = '清除保存的 Token';
+                clearTokenBtn.addEventListener('click', () => {
+                    localStorage.removeItem('githubToken');
+                    showNotification('success', '已清除保存的 GitHub Token');
+                });
+                
+                document.querySelector('.path-container').appendChild(clearTokenBtn);
+                
+                console.log('编辑器初始化完成');
+            } catch (error) {
+                console.error('初始化编辑器时出错:', error);
+                showNotification('error', `初始化编辑器失败: ${error.message}`);
+            }
+        }
+
+        // 当 DOM 加载完成后初始化编辑器
+        document.addEventListener('DOMContentLoaded', initEditor);
     </script>
 </body>
 </html>
+    
