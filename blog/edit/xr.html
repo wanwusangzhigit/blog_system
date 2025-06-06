@@ -1,118 +1,58 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-    <!-- 明确文件路径（假设文件结构如下） -->
-    <!-- 项目根目录 -->
-    <!-- ├─ css/ -->
-    <!-- │  └─ prism-tomorrow.min.css -->
-    <!-- └─ js/ -->
-    <!--    ├─ marked.min.js -->
-    <!--    ├─ prism.min.js -->
-    <!--    ├─ prism-javascript.min.js -->
-    <!--    └─ prism-python.min.js -->
-    <link href="./css/prism-tomorrow.min.css" rel="stylesheet">
-    <!-- 加载顺序：先加载依赖库 -->
-    <script src="./js/marked.min.js"></script>
+    <meta charset="UTF-8">
+    <title>GitHub Dark Markdown 渲染（Prism 版）</title>
+    <script src="./js/marked.js"></script>
     <script src="./js/prism.min.js"></script>
+
+    <!-- GitHub Dark 风格主题 -->
+    <link rel="stylesheet" href="./css/prism-tomorrow.min.css">
+
+    <!-- 可选：添加语言支持 -->
     <script src="./js/prism-javascript.min.js"></script>
     <script src="./js/prism-python.min.js"></script>
 </head>
 <body>
-    <script>
-        // 确保所有依赖加载完成后执行
-        document.addEventListener('DOMContentLoaded', () => {
-            function renderDarkMarkdown(markdownContent) {
-                try {
-                    // 检查Marked库是否加载成功
-                    if (!window.marked) {
-                        throw new Error('Marked库加载失败，请检查js/marked.min.js路径');
-                    }
-                    
-                    // 检查Prism库是否加载成功
-                    if (!window.Prism) {
-                        throw new Error('Prism库加载失败，请检查js/prism.min.js路径');
-                    }
+    <div id="output"></div>
+</body>
+<script>
+    window.addEventListener('load', function () {
+        // Markdown 示例内容
+        const markdown = `
+# GitHub Dark 风格示例
 
-                    // 配置marked库（v9+版本API）
-                    marked.setOptions({
-                        breaks: true,
-                        sanitize: true,
-                        gfm: true,
-                        highlight: (code, lang) => {
-                            // 检查语言组件是否加载（如Python）
-                            if (lang && !Prism.languages[lang]) {
-                                console.warn(`Prism未找到${lang}语言组件，请检查js/prism-${lang}.min.js是否引入`);
-                            }
-                            return `<pre class="language-${lang}"><code class="language-${lang}">${code}</code></pre>`;
-                        }
-                    });
+以下是 JavaScript 示例代码：
 
-                    const darkStyle = `
-                        .dark-markdown {
-                            max-width: 800px;
-                            margin: 20px auto;
-                            background-color: #1a1a1a;
-                            color: #ffffff;
-                            padding: 24px;
-                            border-radius: 8px;
-                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                            line-height: 1.6;
-                        }
-                        .dark-markdown pre[class*="language-"] {
-                            margin: 12px 0;
-                            padding: 16px;
-                            border-radius: 4px;
-                        }
-                        .dark-markdown code[class*="language-"] {
-                            font-size: 0.95em;
-                        }
-                    `;
+\`\`\`js
+function hello(name) {
+    console.log(\`Hello, \${name}!\`);
+}
+hello('World');
+\`\`\`
+`;
 
-                    const htmlContent = marked.parse(markdownContent);
-                    const fullHtml = `
-                        <div class="dark-markdown">
-                            <style>${darkStyle}</style>
-                            ${htmlContent}
-                        </div>
-                    `;
-
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = fullHtml;
-                    Prism.highlightAllUnder(tempDiv);
-
-                    console.log('%c渲染后的暗黑风格HTML（含代码高亮）：', 'color: #4a9cff; font-weight: bold');
-                    console.log(tempDiv.innerHTML);
-
-                    return tempDiv.innerHTML;
-
-                } catch (error) {
-                    console.error('渲染过程中发生错误：', error.message);
-                    return null;
+        // 自定义代码高亮函数
+        marked.setOptions({
+            gfm: true,
+            breaks: true,
+            highlight: function(code, lang) {
+                if (lang && Prism.languages[lang]) {
+                    return `<pre class="language-${lang}"><code class="language-${lang}">${Prism.highlight(code, Prism.languages[lang], lang)}</code></pre>`;
+                } else {
+                    return code;
                 }
             }
-
-            // 测试用例
-            const testMarkdown = `
-                # 暗黑风格渲染测试
-                ## 代码示例
-                \`\`\`javascript
-                // JavaScript示例
-                function greet(name) {
-                    console.log(\`Hello, \${name}!\`);
-                }
-                greet('暗黑风格');
-                \`\`\`
-
-                \`\`\`python
-                # Python示例
-                def calculate(a, b):
-                    return a * b + 2025
-                print("计算结果:", calculate(5, 3))
-                \`\`\`
-            `;
-
-            renderDarkMarkdown(testMarkdown);
         });
-    </script>
-</body>
+
+        // 转换 Markdown 为 HTML
+        const html = marked.parse(markdown);
+        console.log(html);
+        // 插入页面中显示效果
+        document.getElementById('output').innerHTML = html;
+
+        // 手动触发高亮（确保 DOM 已插入）
+        Prism.highlightAll();
+    });
+</script>
 </html>
-    
