@@ -3,71 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monaco Editor with Preview</title>
+  <title>Plnkr Embedded Editor</title>
   <style>
     body {
- display     : flex;
+      display: flex;
       flex-direction: column;
       height: 100vh;
       margin: 0;
     }
-    #container {
+    #header {
+      padding: 10px;
+      background-color: #f1f1f1;
+      text-align: center;
+    }
+    #editor-container {
       display: flex;
       flex: 1;
     }
-    #editor {
+    #editor, #preview {
       flex: 1;
-      border-right: 1px solid #ccc;
+      border: 1px solid #ccc;
+      overflow: auto;
+    }
+    #editor {
+ background     -color: #f9f9f9;
     }
     #preview {
-      flex: 1;
-      overflow: auto;
-      padding: 10px;
-      background-color: #f9f9f9;
-    }
-    #submit {
-      padding: 10px;
-      text-align: center;
-      background-color: #f0f0f0;
+      background-color: #fff;
     }
   </style>
 </head>
 <body>
-  <div id="submit">
+  <div id="header">
     <button id="submit-btn">提交</button>
   </div>
-  <div id="container">
+  <div id="editor-container">
     <div id="editor"></div>
     <div id="preview"></div>
   </div>
-  <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
-  <script>
-    require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor/min/vs' }});
-    require(['vs/editor/editor.main'], function () {
-      const editor = monaco.editor.create(document.getElementById('editor'), {
-        value: '<h1>Hello, Monaco Editor!</h1>',
-        language: 'html',
-        automaticLayout: true
-      });
 
-      document.getElementById('submit-btn').addEventListener('click', function () {
-        const code = editor.getValue();
-        const preview = document.getElementById('preview');
-        preview.innerHTML ''; = // 清空预览区
-        try {
-          // 使用 iframe 来预览 HTML 代码
-          const iframe = document.createElement('iframe');
-          iframe.style.width = '100%';
-          iframe.style.height = '100%';
-          iframe.style.border = 'none';
-          preview.appendChild(iframe);
-          iframe.contentWindow.document.open();
-          iframe.contentWindow.document.write(code);
-          iframe.contentWindow.document.close();
-        } catch (error) {
-          console.error('Error in code:', error);
-        }
-      });
+  <script src="https://cdn.jsdelivr.net/npm/plunker-embed/plunker-embed.min.js"></script>
+  <script>
+    // 初始化 Plnkr 编辑器
+    const editor = Plunker.create('#editor', {
+      files: {
+        'index.html': '<h1>Hello, Plnkr!</h1>'
+      }
+    });
+
+    // 获取提交按钮
+    const submitBtn = document.getElementById('submit-btn');
+
+    // 监听提交按钮点击事件
+    submitBtn.addEventListener('click', () => {
+      // 获取编辑区的代码内容
+      const code = editor.getFiles()['index.html'];
+      // 打印到控制台
+      console.log('HTML Code:', code);
     });
   </script>
 </body>
