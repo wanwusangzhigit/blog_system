@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monaco Editor with Preview</title>
+  <style>
+    body {
+ display     : flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+    }
+    #container {
+      display: flex;
+      flex: 1;
+    }
+    #editor {
+      flex: 1;
+      border-right: 1px solid #ccc;
+    }
+    #preview {
+      flex: 1;
+      overflow: auto;
+      padding: 10px;
+      background-color: #f9f9f9;
+    }
+    #submit {
+      padding: 10px;
+      text-align: center;
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="submit">
+    <button id="submit-btn">提交</button>
+  </div>
+  <div id="container">
+    <div id="editor"></div>
+    <div id="preview"></div>
+  </div>
+  <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
+  <script>
+    require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor/min/vs' }});
+    require(['vs/editor/editor.main'], function () {
+      const editor = monaco.editor.create(document.getElementById('editor'), {
+        value: '<h1>Hello, Monaco Editor!</h1>',
+        language: 'html',
+        automaticLayout: true
+      });
+
+      document.getElementById('submit-btn').addEventListener('click', function () {
+        const code = editor.getValue();
+        const preview = document.getElementById('preview');
+        preview.innerHTML ''; = // 清空预览区
+        try {
+          // 使用 iframe 来预览 HTML 代码
+          const iframe = document.createElement('iframe');
+          iframe.style.width = '100%';
+          iframe.style.height = '100%';
+          iframe.style.border = 'none';
+          preview.appendChild(iframe);
+          iframe.contentWindow.document.open();
+          iframe.contentWindow.document.write(code);
+          iframe.contentWindow.document.close();
+        } catch (error) {
+          console.error('Error in code:', error);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
