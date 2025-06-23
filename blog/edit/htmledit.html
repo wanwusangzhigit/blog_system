@@ -58,7 +58,8 @@
       matchBrackets: true,
       extraKeys: {"Ctrl-Space": "autocomplete"},
       hintOptions: {
-        completeSingle: false
+        completeSingle: false,
+        hint: CodeMirror.hint.html
       }
     });
 
@@ -86,6 +87,13 @@
     document.getElementById('submit-btn').addEventListener('click', function() {
       var code = editor.getValue();
       console.log('HTML Code:', code);
+    });
+
+    // 自动触发补全
+    editor.on('inputRead', function(cm, change) {
+      if (change.text[0] === '<') {
+        CodeMirror.commands.autocomplete(cm);
+      }
     });
   </script>
 </body>
