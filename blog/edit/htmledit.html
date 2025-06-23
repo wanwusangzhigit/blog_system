@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monaco Editor Embedded</title>
+  <title>CodeMirror Embedded</title>
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/lib/codemirror.css">
   <style>
     body {
       display: flex;
@@ -38,36 +39,28 @@
     <button id="submit-btn">提交</button>
   </div>
   <div id="editor-container">
-    <div id="editor"></div>
+    <textarea id="editor"></textarea>
     <iframe id="preview" src="about:blank"></iframe>
   </div>
 
-  <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/lib/codemirror.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/mode/htmlmixed/htmlmixed.js"></script>
   <script>
-    require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor/min/vs' }});
-    require(['vs/editor/editor.main'], function() {
-      var editor = monaco.editor.create(document.getElementById('editor'), {
-        value: [
-          '<!DOCTYPE html>',
-          '<html lang="en">',
-          '<head>',
-          '  <meta charset="UTF-8">',
-          '  <title>Document</title>',
-          '</head>',
-          '<body>',
-          '  <h1>Hello, Monaco!</h1>',
-          '</body>',
-          '</html>'
-        ].join('\n'),
-        language: 'html'
-      });
+    var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+      lineNumbers: true,
+      mode: 'htmlmixed',
+      viewportMargin: Infinity
+    });
 
-      document.getElementById('submit-btn').addEventListener('click', function() {
-        var code = editor.getValue();
-        console.log('HTML Code:', code);
-        var preview = document.getElementById('preview');
-        preview.contentDocument.body.innerHTML = code;
-      });
+    editor.on('change', function() {
+      var code = editor.getValue();
+      var preview = document.getElementById('preview');
+      preview.contentDocument.body.innerHTML = code;
+    });
+
+    document.getElementById('submit-btn').addEventListener('click', function() {
+      var code = editor.getValue();
+      console.log('HTML Code:', code);
     });
   </script>
 </body>
