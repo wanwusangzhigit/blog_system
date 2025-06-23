@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plnkr Embedded Editor</title>
+  <title>Monaco Editor Embedded</title>
   <style>
     body {
       display: flex;
@@ -26,7 +26,7 @@
       overflow: auto;
     }
     #editor {
- background     -color: #f9f9f9;
+      background-color: #f9f9f9;
     }
     #preview {
       background-color: #fff;
@@ -39,27 +39,35 @@
   </div>
   <div id="editor-container">
     <div id="editor"></div>
-    <div id="preview"></div>
+    <iframe id="preview" src="about:blank"></iframe>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/plunker-embed/plunker-embed.min.js"></script>
+  <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
   <script>
-    // 初始化 Plnkr 编辑器
-    const editor = Plunker.create('#editor', {
-      files: {
-        'index.html': '<h1>Hello, Plnkr!</h1>'
-      }
-    });
+    require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+      var editor = monaco.editor.create(document.getElementById('editor'), {
+        value: [
+          '<!DOCTYPE html>',
+          '<html lang="en">',
+          '<head>',
+          '  <meta charset="UTF-8">',
+          '  <title>Document</title>',
+          '</head>',
+          '<body>',
+          '  <h1>Hello, Monaco!</h1>',
+          '</body>',
+          '</html>'
+        ].join('\n'),
+        language: 'html'
+      });
 
-    // 获取提交按钮
-    const submitBtn = document.getElementById('submit-btn');
-
-    // 监听提交按钮点击事件
-    submitBtn.addEventListener('click', () => {
-      // 获取编辑区的代码内容
-      const code = editor.getFiles()['index.html'];
-      // 打印到控制台
-      console.log('HTML Code:', code);
+      document.getElementById('submit-btn').addEventListener('click', function() {
+        var code = editor.getValue();
+        console.log('HTML Code:', code);
+        var preview = document.getElementById('preview');
+        preview.contentDocument.body.innerHTML = code;
+      });
     });
   </script>
 </body>
