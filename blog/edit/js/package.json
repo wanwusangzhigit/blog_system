@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "codemirror-formatting": "^1.0.0"
+  }
+}
