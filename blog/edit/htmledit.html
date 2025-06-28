@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>全兼容HTML编辑器 - 手机/电脑实时预览</title>
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/lib/codemirror.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/addon/hint/show-hint.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/addon/lint/lint.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/monokai.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/dracula.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/material.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/nord.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/solarized.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/addon/fold/foldgutter.css">
-  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/addon/dialog/dialog.css">
+  <title>专业HTML编辑器 - 手机/电脑兼容版</title>
+  <!-- 使用unpkg镜像源 -->
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/lib/codemirror.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/addon/hint/show-hint.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/addon/lint/lint.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/monokai.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/dracula.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/material.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/nord.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/theme/solarized.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/addon/fold/foldgutter.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.7/addon/dialog/dialog.min.css">
   <style>
     :root {
       --primary-color: #4a6cf7;
@@ -255,26 +256,6 @@
       margin-right: 5px;
     }
     
-    .cm-lint-marker-multiple {
-      position: relative;
-    }
-    
-    .cm-lint-marker-multiple:after {
-      content: attr(data-count);
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background-color: var(--error-color);
-      color: white;
-      font-size: 9px;
-      border-radius: 50%;
-      width: 14px;
-      height: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
     /* 响应式布局 - 平板 */
     @media (max-width: 900px) {
       #editor-container {
@@ -330,6 +311,10 @@
       
       #mobile-toolbar {
         display: flex;
+      }
+
+      #toolbar {
+        display: none;
       }
     }
     
@@ -475,7 +460,7 @@
     
     /* 视图切换器 */
     .view-switcher {
-      display: flex;
+      display: none;
       background: #f5f7ff;
       border-radius: 50px;
       padding: 4px;
@@ -521,13 +506,154 @@
     .touch-optimized .CodeMirror-scroll {
       -webkit-overflow-scrolling: touch;
     }
+    
+    /* 欢迎面板 */
+    .welcome-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .welcome-panel h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #4a6cf7, #6a11cb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+    }
+    
+    .welcome-panel p {
+      max-width: 700px;
+      line-height: 1.7;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .welcome-panel .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 800px;
+      margin-bottom: 40px;
+    }
+    
+    .welcome-panel .feature {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: left;
+      transition: transform 0.3s ease;
+    }
+    
+    .welcome-panel .feature:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .welcome-panel .feature h3 {
+      color: #4a6cf7;
+      margin-top: 0;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.2rem;
+    }
+    
+    .welcome-panel .feature-icon {
+      background: rgba(74, 108, 247, 0.2);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4a6cf7;
+      font-size: 20px;
+    }
+    
+    .close-welcome {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8rem;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+    
+    .close-welcome:hover {
+      opacity: 1;
+    }
+
+    /* 预览加载指示器 */
+    .preview-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #999;
+      font-size: 14px;
+    }
+
+    /* 预览错误提示 */
+    .preview-error {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #f56c6c;
+      font-size: 14px;
+      text-align: center;
+      padding: 20px;
+      background: rgba(245, 108, 108, 0.1);
+      border-radius: 8px;
+      max-width: 80%;
+    }
+
+    /* 预览容器 */
+    #preview-container {
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+
+    /* 预览尺寸指示器 */
+    .preview-dimensions {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
   <div id="header">
     <div class="logo">
       <div class="logo-icon">H</div>
-      <span>全兼容HTML编辑器</span>
+      <span>专业HTML编辑器</span>
     </div>
     
     <div id="toolbar">
@@ -602,12 +728,7 @@
     </div>
   </div>
   
-  <div id="editor-container" class="mobile-view">
-    <div class="view-switcher">
-      <button class="view-btn active" data-view="editor">编辑器</button>
-      <button class="view-btn" data-view="preview">预览</button>
-    </div>
-    
+  <div id="editor-container">
     <div id="editor-wrapper">
       <div class="panel-header">
         <span>HTML 编辑器</span>
@@ -622,6 +743,8 @@
       <textarea id="editor"></textarea>
     </div>
     
+    <div class="splitter" id="splitter"></div>
+    
     <div id="preview-wrapper">
       <div class="panel-header">
         <span>实时预览</span>
@@ -633,7 +756,10 @@
           </button>
         </div>
       </div>
-      <iframe id="preview" name="previewFrame" src="about:blank"></iframe>
+      <div id="preview-container">
+        <iframe id="preview" name="previewFrame" src="about:blank"></iframe>
+        <div class="preview-dimensions" id="preview-dimensions">0×0</div>
+      </div>
     </div>
   </div>
   
@@ -659,21 +785,67 @@
       </svg>
     </button>
   </div>
+  
+  <div class="welcome-panel" id="welcome-panel">
+    <button class="close-welcome" id="close-welcome">&times;</button>
+    <h2>专业HTML代码编辑器</h2>
+    <p>支持手机和电脑设备，实时预览与代码辅助</p>
+    
+    <div class="features">
+      <div class="feature">
+        <h3><span class="feature-icon">✓</span> 多设备兼容</h3>
+        <p>在手机、平板和桌面设备上均有出色的用户体验</p>
+      </div>
+      <div class="feature">
+        <h3><span class="feature-icon">✓</span> 实时预览</h3>
+        <p>编辑代码时右侧实时显示效果，无需刷新</p>
+      </div>
+      <div class="feature">
+        <h3><span class="feature-icon">✓</span> 语法检查</h3>
+        <p>自动检测HTML语法错误并高亮显示</p>
+      </div>
+      <div class="feature">
+        <h3><span class="feature-icon">✓</span> 代码格式化</h3>
+        <p>一键美化代码，提高可读性</p>
+      </div>
+      <div class="feature">
+        <h3><span class="feature-icon">✓</span> 多主题支持</h3>
+        <p>提供6种专业代码主题，满足不同偏好</p>
+      </div>
+      <div class="feature">
+        <h3><span class="feature-icon">✓</span> 自动保存</h3>
+        <p>自动保存代码到本地存储，防止丢失</p>
+      </div>
+      <div class="feature">
+        <h3><span class="feature-icon">✓</span> 全屏模式</h3>
+        <p>支持全屏查看代码或预览效果</p>
+      </div>
+      <div class="feature">
+        <h3><span class="feature-icon">✓</span> 触摸优化</h3>
+        <p>移动设备上提供专用工具栏和触摸支持</p>
+      </div>
+    </div>
+    
+    <button class="btn" id="start-coding" style="padding: 12px 40px; font-size: 1.1rem; margin-top: 20px;">
+      开始编码
+    </button>
+  </div>
 
-  <script src="https://unpkg.com/codemirror@5.65.7/lib/codemirror.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/mode/htmlmixed/htmlmixed.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/edit/matchbrackets.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/hint/show-hint.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/hint/html-hint.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/format/format.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/lint/lint.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/lint/html-lint.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/dialog/dialog.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/fold/foldcode.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/fold/foldgutter.js"></script>
-  <script src="https://unpkg.com/codemirror@5.65.7/addon/fold/xml-fold.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/htmlhint/1.1.4/htmlhint.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
+  <!-- 使用unpkg镜像源 -->
+  <script src="https://unpkg.com/codemirror@5.65.7/lib/codemirror.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/hint/show-hint.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/hint/html-hint.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/format/format.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/lint/lint.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/lint/html-lint.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/dialog/dialog.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/fold/foldcode.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/fold/foldgutter.min.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.7/addon/fold/xml-fold.min.js"></script>
+  <script src="https://unpkg.com/htmlhint@1.1.4/dist/htmlhint.min.js"></script>
+  <script src="https://unpkg.com/js-beautify@1.14.7/js/lib/beautify-html.min.js"></script>
 
   <script>
     // 定义主题列表
@@ -690,7 +862,7 @@
     let isResizing = false;
     let errorCount = 0;
     let warningCount = 0;
-    let autoSaveTimer;
+    let previewLoading = false;
     
     // 初始化编辑器
     var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
@@ -727,165 +899,71 @@
     });
 
     // 初始代码
-    const initialCode = `<!DOCTYPE html>
-<html lang="zh-CN">
+    const initialCode = `<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>响应式HTML页面</title>
+  <title>欢迎使用HTML编辑器</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
     body {
-      background: linear-gradient(135deg, #1a2a6c, #2c3e50);
-      color: white;
-      line-height: 1.6;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    header {
-      text-align: center;
-      margin-bottom: 40px;
-      padding: 20px;
-    }
-    
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 15px;
-    }
-    
-    .subtitle {
-      font-size: 1.1rem;
-      opacity: 0.9;
+      font-family: Arial, sans-serif;
       max-width: 800px;
       margin: 0 auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+      color: white;
     }
-    
+    h1 {
+      color: #4a6cf7;
+      text-align: center;
+      margin-top: 30px;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      margin-top: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
     .features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
-      margin-bottom: 40px;
+      margin-top: 30px;
     }
-    
-    .feature-card {
+    .feature {
       background: rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      transition: transform 0.3s ease;
-    }
-    
-    .feature-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .feature-card h3 {
-      color: #4a6cf7;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.3rem;
-    }
-    
-    .feature-icon {
-      background: rgba(74, 108, 247, 0.2);
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-    
-    .btn {
-      display: inline-block;
-      background: #4a6cf7;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-top: 10px;
-    }
-    
-    .btn:hover {
-      background: #3556d9;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
-    }
-    
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2rem;
-      }
-      
-      .feature-card {
-        padding: 20px;
-      }
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
+  <h1>欢迎使用HTML编辑器</h1>
+  
   <div class="container">
-    <header>
-      <h1>响应式HTML编辑器</h1>
-      <p class="subtitle">此页面完美适配手机和电脑设备，使用专业HTML编辑器创建</p>
-    </header>
+    <p>开始编写您的HTML代码，右侧将实时显示预览效果。</p>
     
-    <section class="features">
-      <div class="feature-card">
-        <h3><span class="feature-icon">✓</span> 移动优先设计</h3>
-        <p>采用响应式布局，确保在手机、平板和桌面设备上均有出色表现。</p>
+    <div class="features">
+      <div class="feature">
+        <h3>多设备兼容</h3>
+        <p>在手机、平板和桌面设备上均有出色的用户体验</p>
       </div>
-      
-      <div class="feature-card">
-        <h3><span class="feature-icon">✓</span> 触摸优化</h3>
-        <p>所有交互元素针对触摸设备优化，提供流畅的移动体验。</p>
+      <div class="feature">
+        <h3>实时预览</h3>
+        <p>编辑代码时实时显示效果，无需刷新</p>
       </div>
-      
-      <div class="feature-card">
-        <h3><span class="feature-icon">✓</span> 性能优化</h3>
-        <p>轻量级代码确保在各种设备上快速加载和流畅运行。</p>
+      <div class="feature">
+        <h3>语法检查</h3>
+        <p>自动检测HTML语法错误并高亮显示</p>
       </div>
-    </section>
-    
-    <div style="text-align: center;">
-      <button class="btn" onclick="this.textContent='您已成功点击按钮!'">
-        点我测试
-      </button>
+      <div class="feature">
+        <h3>代码格式化</h3>
+        <p>一键美化代码，提高可读性</p>
+      </div>
     </div>
   </div>
-  
-  <script>
-    // 设备检测
-    function isMobileDevice() {
-      return (typeof window.orientation !== "undefined") || 
-             (navigator.userAgent.indexOf('IEMobile') !== -1);
-    }
-    
-    if (isMobileDevice()) {
-      console.log("移动设备访问");
-    } else {
-      console.log("桌面设备访问");
-    }
+</body>
+</html>`;
     
     // 尝试加载保存的代码
     const savedCode = localStorage.getItem('htmlEditorCode');
@@ -904,10 +982,6 @@
       document.body.classList.add('touch-optimized');
       document.getElementById('mobile-toolbar').style.display = 'flex';
       document.getElementById('toolbar').style.display = 'none';
-      document.querySelector('.view-switcher').style.display = 'flex';
-    } else {
-      document.querySelector('.view-switcher').style.display = 'none';
-      document.getElementById('toolbar').style.display = 'flex';
     }
     
     // 实时预览功能
@@ -930,14 +1004,17 @@
       if (errorCount > 0) {
         statusIndicator.classList.add('error');
         document.getElementById('error-count').style.color = 'var(--error-color)';
+        document.getElementById('warning-count').style.color = 'var(--warning-color)';
       } else if (warningCount > 0) {
         statusIndicator.classList.add('warning');
         document.getElementById('error-count').style.color = 'var(--success-color)';
+        document.getElementById('warning-count').style.color = 'var(--warning-color)';
       } else {
         document.getElementById('error-count').style.color = 'var(--success-color)';
+        document.getElementById('warning-count').style.color = 'var(--success-color)';
       }
     });
-
+    
     // 提交按钮事件
     document.getElementById('submit-btn').addEventListener('click', function() {
       submitCode();
@@ -1023,10 +1100,19 @@
     document.querySelectorAll('.theme-option').forEach(option => {
       option.addEventListener('click', function() {
         const theme = this.getAttribute('data-theme');
+        const themeName = this.textContent.trim();
+        
         editor.setOption('theme', theme);
         document.getElementById('theme-dropdown').style.display = 'none';
         
-        showDialog('主题已切换', `已切换到 ${this.textContent.trim()} 主题`);
+        // 更新主题按钮文本
+        const themeBtn = document.getElementById('theme-btn');
+        const themeText = themeBtn.querySelector('.btn-text');
+        if (themeText) {
+          themeText.textContent = themeName;
+        }
+        
+        showDialog('主题已切换', `已切换到 ${themeName} 主题`);
       });
     });
     
@@ -1056,58 +1142,94 @@
       });
     });
     
-    // 视图切换
-    document.querySelectorAll('.view-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const view = this.getAttribute('data-view');
-        
-        // 更新按钮状态
-        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        
-        // 切换视图
-        if (view === 'editor') {
-          document.getElementById('editor-wrapper').classList.remove('hidden');
-          document.getElementById('preview-wrapper').classList.remove('active');
-        } else {
-          document.getElementById('editor-wrapper').classList.add('hidden');
-          document.getElementById('preview-wrapper').classList.add('active');
-        }
-      });
+    // 关闭欢迎面板
+    document.getElementById('close-welcome').addEventListener('click', function() {
+      document.getElementById('welcome-panel').style.display = 'none';
+    });
+    
+    // 开始编码按钮
+    document.getElementById('start-coding').addEventListener('click', function() {
+      document.getElementById('welcome-panel').style.display = 'none';
     });
 
-    // 更新预览功能
+    // 更新预览功能 - 改进版本
     function updatePreview() {
       try {
+        const preview = document.getElementById('preview');
         const code = editor.getValue();
-        const preview = document.getElementById('preview').contentDocument;
         
-        preview.open();
-        preview.write(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <base target="_blank">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              body { 
-                margin: 0; 
-                padding: 20px; 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-                transition: all 0.3s;
-              }
-              iframe, object, embed { max-width: 100%; }
-              * { transition: all 0.3s; }
-            </style>
-          </head>
-          <body>
-            ${code}
-          </body>
-          </html>
-        `);
-        preview.close();
+        // 显示加载指示器
+        previewLoading = true;
+        showPreviewLoading();
+        
+        // 创建新的Blob对象
+        const blob = new Blob([code], {type: 'text/html'});
+        const url = URL.createObjectURL(blob);
+        
+        // 设置iframe的src
+        preview.src = url;
+        
+        // 监听加载完成
+        preview.onload = function() {
+          previewLoading = false;
+          hidePreviewLoading();
+          updatePreviewDimensions();
+        };
+        
+        // 监听加载错误
+        preview.onerror = function() {
+          previewLoading = false;
+          hidePreviewLoading();
+          showPreviewError('无法加载预览，请检查代码语法');
+        };
       } catch (error) {
         console.error('预览错误:', error);
+        previewLoading = false;
+        hidePreviewLoading();
+        showPreviewError('预览错误: ' + error.message);
+      }
+    }
+    
+    // 显示预览加载指示器
+    function showPreviewLoading() {
+      let loadingIndicator = document.querySelector('.preview-loading');
+      if (!loadingIndicator) {
+        loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'preview-loading';
+        loadingIndicator.textContent = '加载预览中...';
+        document.getElementById('preview-container').appendChild(loadingIndicator);
+      }
+      loadingIndicator.style.display = 'block';
+    }
+    
+    // 隐藏预览加载指示器
+    function hidePreviewLoading() {
+      const loadingIndicator = document.querySelector('.preview-loading');
+      if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+      }
+    }
+    
+    // 显示预览错误
+    function showPreviewError(message) {
+      let errorElement = document.querySelector('.preview-error');
+      if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.className = 'preview-error';
+        document.getElementById('preview-container').appendChild(errorElement);
+      }
+      errorElement.textContent = message;
+      errorElement.style.display = 'block';
+    }
+    
+    // 更新预览尺寸显示
+    function updatePreviewDimensions() {
+      const preview = document.getElementById('preview');
+      const dimensions = document.getElementById('preview-dimensions');
+      if (preview.contentDocument && preview.contentDocument.body) {
+        dimensions.textContent = `${preview.contentDocument.body.scrollWidth}×${preview.contentDocument.body.scrollHeight}`;
+      } else {
+        dimensions.textContent = '0×0';
       }
     }
     
@@ -1155,14 +1277,9 @@
     
     // 分割条功能（仅桌面）
     if (!isMobile()) {
-      const splitter = document.createElement('div');
-      splitter.className = 'splitter';
-      splitter.id = 'splitter';
-      document.getElementById('editor-container').insertBefore(splitter, document.getElementById('preview-wrapper'));
-      
       let startX, startWidth;
       
-      splitter.addEventListener('mousedown', function(e) {
+      document.getElementById('splitter').addEventListener('mousedown', function(e) {
         isResizing = true;
         startX = e.clientX;
         const editorEl = document.getElementById('editor-wrapper');
@@ -1218,6 +1335,9 @@
     // 窗口大小调整
     window.addEventListener('resize', function() {
       editor.refresh();
+      if (!previewLoading) {
+        updatePreviewDimensions();
+      }
     });
 
     // 初始化错误计数
@@ -1226,8 +1346,8 @@
     
     // 检查是否有保存的代码
     if (savedCode) {
-      showDialog('恢复成功', '已自动恢复上次编辑的代码');
+      document.getElementById('welcome-panel').style.display = 'none';
     }
   </script>
 </body>
-              </html>
+</html>
