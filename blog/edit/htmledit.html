@@ -458,151 +458,6 @@
       transform: scale(0.95);
     }
     
-    /* 视图切换器 */
-    .view-switcher {
-      display: none;
-      background: #f5f7ff;
-      border-radius: 50px;
-      padding: 4px;
-      margin: 0 10px;
-    }
-    
-    .view-btn {
-      padding: 6px 16px;
-      border-radius: 50px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-    
-    .view-btn.active {
-      background: var(--primary-color);
-      color: white;
-    }
-    
-    /* 手机视图优化 */
-    .mobile-view #editor-wrapper {
-      flex: 0 0 100%;
-      height: 100%;
-    }
-    
-    .mobile-view #preview-wrapper {
-      flex: 0 0 100%;
-      height: 100%;
-      display: none;
-    }
-    
-    .mobile-view #preview-wrapper.active {
-      display: flex;
-    }
-    
-    .mobile-view #editor-wrapper.hidden {
-      display: none;
-    }
-    
-    /* 触摸设备优化 */
-    .touch-optimized .CodeMirror-scroll {
-      -webkit-overflow-scrolling: touch;
-    }
-    
-    /* 欢迎面板 */
-    .welcome-panel {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.9);
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    
-    .welcome-panel h2 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      background: linear-gradient(90deg, #4a6cf7, #6a11cb);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 800;
-    }
-    
-    .welcome-panel p {
-      max-width: 700px;
-      line-height: 1.7;
-      margin-bottom: 30px;
-      font-size: 1.1rem;
-      opacity: 0.9;
-    }
-    
-    .welcome-panel .features {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      max-width: 800px;
-      margin-bottom: 40px;
-    }
-    
-    .welcome-panel .feature {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      text-align: left;
-      transition: transform 0.3s ease;
-    }
-    
-    .welcome-panel .feature:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.12);
-    }
-    
-    .welcome-panel .feature h3 {
-      color: #4a6cf7;
-      margin-top: 0;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.2rem;
-    }
-    
-    .welcome-panel .feature-icon {
-      background: rgba(74, 108, 247, 0.2);
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #4a6cf7;
-      font-size: 20px;
-    }
-    
-    .close-welcome {
-      position: absolute;
-      top: 25px;
-      right: 25px;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.8rem;
-      cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.3s;
-    }
-    
-    .close-welcome:hover {
-      opacity: 1;
-    }
-
     /* 预览加载指示器 */
     .preview-loading {
       position: absolute;
@@ -785,51 +640,6 @@
       </svg>
     </button>
   </div>
-  
-  <div class="welcome-panel" id="welcome-panel">
-    <button class="close-welcome" id="close-welcome">&times;</button>
-    <h2>专业HTML代码编辑器</h2>
-    <p>支持手机和电脑设备，实时预览与代码辅助</p>
-    
-    <div class="features">
-      <div class="feature">
-        <h3><span class="feature-icon">✓</span> 多设备兼容</h3>
-        <p>在手机、平板和桌面设备上均有出色的用户体验</p>
-      </div>
-      <div class="feature">
-        <h3><span class="feature-icon">✓</span> 实时预览</h3>
-        <p>编辑代码时右侧实时显示效果，无需刷新</p>
-      </div>
-      <div class="feature">
-        <h3><span class="feature-icon">✓</span> 语法检查</h3>
-        <p>自动检测HTML语法错误并高亮显示</p>
-      </div>
-      <div class="feature">
-        <h3><span class="feature-icon">✓</span> 代码格式化</h3>
-        <p>一键美化代码，提高可读性</p>
-      </div>
-      <div class="feature">
-        <h3><span class="feature-icon">✓</span> 多主题支持</h3>
-        <p>提供6种专业代码主题，满足不同偏好</p>
-      </div>
-      <div class="feature">
-        <h3><span class="feature-icon">✓</span> 自动保存</h3>
-        <p>自动保存代码到本地存储，防止丢失</p>
-      </div>
-      <div class="feature">
-        <h3><span class="feature-icon">✓</span> 全屏模式</h3>
-        <p>支持全屏查看代码或预览效果</p>
-      </div>
-      <div class="feature">
-        <h3><span class="feature-icon">✓</span> 触摸优化</h3>
-        <p>移动设备上提供专用工具栏和触摸支持</p>
-      </div>
-    </div>
-    
-    <button class="btn" id="start-coding" style="padding: 12px 40px; font-size: 1.1rem; margin-top: 20px;">
-      开始编码
-    </button>
-  </div>
 
   <!-- 使用unpkg镜像源 -->
   <script src="https://unpkg.com/codemirror@5.65.7/lib/codemirror.min.js"></script>
@@ -899,9 +709,12 @@
     });
 
     // 初始代码
-    const initialCode = `<html>
+    const initialCode = `<!DOCTYPE html>
+<html>
 <head>
-  <title>欢迎使用HTML编辑器</title>
+  <title>专业HTML编辑器</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -935,10 +748,19 @@
       border-radius: 8px;
       text-align: center;
     }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #4a6cf7;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-  <h1>欢迎使用HTML编辑器</h1>
+  <h1>专业HTML编辑器</h1>
   
   <div class="container">
     <p>开始编写您的HTML代码，右侧将实时显示预览效果。</p>
@@ -960,6 +782,10 @@
         <h3>代码格式化</h3>
         <p>一键美化代码，提高可读性</p>
       </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <a href="#" class="btn">开始编码</a>
     </div>
   </div>
 </body>
@@ -1140,16 +966,6 @@
           editor.foldCode(CodeMirror.Pos(i, 0), null, "fold");
         }
       });
-    });
-    
-    // 关闭欢迎面板
-    document.getElementById('close-welcome').addEventListener('click', function() {
-      document.getElementById('welcome-panel').style.display = 'none';
-    });
-    
-    // 开始编码按钮
-    document.getElementById('start-coding').addEventListener('click', function() {
-      document.getElementById('welcome-panel').style.display = 'none';
     });
 
     // 更新预览功能 - 改进版本
@@ -1343,11 +1159,6 @@
     // 初始化错误计数
     errorCount = 0;
     warningCount = 0;
-    
-    // 检查是否有保存的代码
-    if (savedCode) {
-      document.getElementById('welcome-panel').style.display = 'none';
-    }
   </script>
 </body>
 </html>
